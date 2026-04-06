@@ -2,84 +2,83 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fluid Curve - Big Preview</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Fluid Curve - Safe Layout</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: system-ui, sans-serif;
             background-color: #111; color: #eee;
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            /* Support untuk notch/home bar di iOS/Android */
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* HEADER RINGKAS */
-        header { background: #000; padding: 8px; text-align: center; border-bottom: 1px solid #333; flex-shrink: 0; }
-        header h1 { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 2px; }
+        header { background: #000; padding: 10px; text-align: center; border-bottom: 1px solid #333; flex-shrink: 0; }
+        header h1 { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1.5px; }
 
         .main-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
 
-        /* PREVIEW AREA: Dibuat maksimal */
+        /* AREA PREVIEW */
         #preview-panel {
-            flex: 1; /* Mengambil sisa ruang paling besar */
-            background: #151515;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden; 
-            position: relative;
-            padding: 5px; /* Padding minimal agar foto besar */
+            flex: 1; background: #151515; display: flex;
+            justify-content: center; align-items: center; padding: 5px; 
+            overflow: hidden; position: relative;
         }
         #imageCanvas { 
-            max-width: 100%; max-height: 100%; 
-            object-fit: contain;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            background: repeating-conic-gradient(#222 0% 25%, #2a2a2a 0% 50%) 50% / 16px 16px;
+            max-width: 100%; max-height: 100%; object-fit: contain;
+            box-shadow: 0 0 25px rgba(0,0,0,0.6);
+            background: repeating-conic-gradient(#222 0% 25%, #2a2a2a 0% 50%) 50% / 15px 15px;
         }
 
-        /* CONTROLS AREA: Lebih compact & scrollable */
+        /* AREA KONTROL: Ditambah padding bawah agar tidak terpotong */
         #controls-panel {
             background: #222; 
-            padding: 15px 10px;
+            padding: 15px 12px 40px 12px; /* Padding bawah 40px agar aman dari home bar */
             border-top: 1px solid #444;
-            display: flex; flex-direction: column; gap: 12px;
-            flex-shrink: 0;
-            max-height: 55vh; /* Jangan sampai memakan lebih dari setengah layar */
+            display: flex; flex-direction: column; gap: 14px;
+            max-height: 50vh; 
             overflow-y: auto;
+            flex-shrink: 0; /* Mencegah panel ini mengecil secara paksa */
         }
 
-        .input-group { background: #333; padding: 8px; border-radius: 8px; }
-        input[type="file"] { font-size: 0.7rem; width: 100%; }
+        .input-group { background: #333; padding: 10px; border-radius: 8px; border: 1px solid #444; }
+        input[type="file"] { font-size: 0.75rem; width: 100%; color: #ccc; }
 
-        .tabs { display: flex; background: #000; border-radius: 6px; padding: 2px; gap: 2px; }
-        .tab { flex: 1; text-align: center; padding: 8px 0; cursor: pointer; font-size: 0.65rem; font-weight: bold; border-radius: 4px; }
-        .tab.active { background: #444; }
-        .tab[data-chan="all"] { color: #fff; }
-        .tab[data-chan="r"] { color: #ff5555; }
-        .tab[data-chan="g"] { color: #55ff55; }
-        .tab[data-chan="b"] { color: #5555ff; }
+        .tabs { display: flex; background: #000; border-radius: 8px; padding: 3px; gap: 3px; }
+        .tab { flex: 1; text-align: center; padding: 12px 0; cursor: pointer; font-size: 0.7rem; font-weight: bold; border-radius: 6px; }
+        .tab.active { background: #444; color: #fff; }
+        .tab[data-chan="r"] { color: #ff6666; }
+        .tab[data-chan="g"] { color: #66ff66; }
+        .tab[data-chan="b"] { color: #6666ff; }
 
         .curve-wrapper {
-            width: 220px; height: 220px; /* Sedikit diperkecil agar tidak makan tempat */
-            margin: 0 auto; position: relative; background: #000; border: 1px solid #555;
+            width: 220px; height: 220px; margin: 0 auto;
+            position: relative; background: #000; border: 1px solid #555;
             touch-action: none; flex-shrink: 0;
         }
-        #curveCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; }
+        #curveCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
-        .action-row { display: flex; gap: 8px; }
-        .btn { border: none; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-align: center; flex: 1; }
-        .btn-gray { background: #444; }
-        .btn-green { background: #1b5e20; }
-        .btn-disabled { opacity: 0.2; pointer-events: none; }
+        /* TOMBOL AKSI: Dibuat lebih tebal dan jelas */
+        .action-row { display: flex; gap: 10px; flex-shrink: 0; padding-bottom: 5px; }
+        .btn { 
+            border: none; color: #fff; padding: 16px; border-radius: 10px; 
+            font-size: 0.9rem; font-weight: 800; cursor: pointer; text-align: center; flex: 1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .btn-gray { background: #4a4a4a; }
+        .btn-green { background: #2e7d32; }
+        .btn-disabled { opacity: 0.15; pointer-events: none; }
 
-        /* DESKTOP MODE */
         @media (min-width: 768px) {
             .main-container { flex-direction: row; }
-            #controls-panel { width: 300px; height: 100%; max-height: none; border-top: none; border-right: 1px solid #333; }
-            .curve-wrapper { width: 256px; height: 256px; }
+            #controls-panel { width: 320px; height: 100%; max-height: none; padding-bottom: 20px; border-right: 1px solid #333; }
         }
     </style>
 </head>
 <body>
 
-<header><h1>PRO PHOTO CURVE</h1></header>
+<header><h1>FLUID EDITOR PRO</h1></header>
 
 <div class="main-container">
     <main id="preview-panel">
@@ -106,12 +105,14 @@
             <button class="btn btn-gray" id="resetCurve">RESET</button>
             <a id="downloadLink" class="btn btn-green btn-disabled">SIMPAN</a>
         </div>
-        <p style="font-size: 0.6rem; color: #666; text-align: center;">Tarik kurva untuk edit. Double tap titik untuk hapus.</p>
+        <p style="font-size: 0.65rem; color: #555; text-align: center; padding-bottom: 10px;">
+            Tip: Tambahkan titik pada garis, tarik untuk sesuaikan warna.
+        </p>
     </aside>
 </div>
 
 <script>
-    // --- Script Logika (Sama dengan sebelumnya, tetap dipertahankan kestabilannya) ---
+    // --- LOGIKA UTAMA (Tetap sama, stabil & fluid) ---
     const imageLoader = document.getElementById('imageLoader');
     const imageCanvas = document.getElementById('imageCanvas');
     const imgCtx = imageCanvas.getContext('2d', { willReadFrequently: true });
@@ -136,11 +137,11 @@
         reader.onload = function(event) {
             const img = new Image();
             img.onload = function() {
-                const maxDim = 1600; // Ukuran sedikit lebih besar untuk kualitas
+                const maxDim = 1400;
                 let w = img.width, h = img.height;
                 if (w > maxDim || h > maxDim) {
-                    const ratio = Math.min(maxDim/w, maxDim/h);
-                    w *= ratio; h *= ratio;
+                    const r = Math.min(maxDim/w, maxDim/h);
+                    w *= r; h *= r;
                 }
                 imageCanvas.width = w; imageCanvas.height = h;
                 imgCtx.drawImage(img, 0, 0, w, h);
@@ -189,7 +190,7 @@
     function drawCurve() {
         curveCtx.fillStyle = "#000";
         curveCtx.fillRect(0,0,256,256);
-        curveCtx.strokeStyle = '#222';
+        curveCtx.strokeStyle = '#252525';
         for(let i=1; i<4; i++) {
             curveCtx.beginPath(); curveCtx.moveTo(i*64, 0); curveCtx.lineTo(i*64, 256); curveCtx.stroke();
             curveCtx.beginPath(); curveCtx.moveTo(0, i*64); curveCtx.lineTo(256, i*64); curveCtx.stroke();
@@ -230,12 +231,9 @@
     function setupEvents() {
         const getCoord = (e) => {
             const rect = curveCanvas.getBoundingClientRect();
-            const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
-            const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
-            return { 
-                x: (clientX - rect.left) * (256 / rect.width), 
-                y: (clientY - rect.top) * (256 / rect.height) 
-            };
+            const cX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+            const cY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+            return { x: (cX - rect.left) * (256/rect.width), y: (cY - rect.top) * (256/rect.height) };
         };
 
         const onStart = (e) => {
@@ -286,13 +284,12 @@
         });
     }
 
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => {
+        t.onclick = () => {
             document.querySelector('.tab.active').classList.remove('active');
-            tab.classList.add('active');
-            currentChannel = tab.dataset.chan;
+            t.classList.add('active'); currentChannel = t.dataset.chan;
             drawCurve();
-        };
+        }
     });
 
     document.getElementById('resetCurve').onclick = () => {
@@ -303,7 +300,7 @@
     downloadLink.onclick = (e) => {
         if (downloadLink.classList.contains('btn-disabled')) return e.preventDefault();
         downloadLink.href = imageCanvas.toDataURL("image/png");
-        downloadLink.download = "edit_mobile.png";
+        downloadLink.download = "edit_safe.png";
     };
 
     setupEvents(); drawCurve();
